@@ -1,26 +1,73 @@
 import { ArrowLongRightIcon, GifIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import React, { useRef, useState } from 'react'
 
+import { db, storage } from "@/firebase";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "@firebase/firestore";
+import { getDownloadURL, ref, uploadString } from "@firebase/storage";
 
 type Props = {}
 
 function Input({}: Props) {
         // hook
         const [input,setInput] = useState('');
-        const [selectedFile, setSelectedFile] = useState(null);
+        const [selectedFile, setSelectedFile] = useState<string | null>(null);
         const [showGif, setShowGif] = useState(false);
+        const [loading, setLoadiing] = useState(false);
 
         const filePickerRef = useRef<HTMLInputElement>(null);
 
+        // send post function
+        const sendPost = async() => {
+            if(loading) return;
+            setLoadiing(true);
 
-        const addImageToPost = () => {
-            setSelectedFile(selectedFile);
+            const docRef = await addDoc(collection(db,'posts'),{
+                // id: session.user.uid,
+                // username: session.user.name,
+                // userImg: session.user.image,
+                // tag: session.user.tag,
+                text: input,
+                timestamp: serverTimestamp(),
+            });
+
+            const imageRef = ref(storage, `posts/${docRef.id}/image`);
+
+            if (selectedFile){
+                await uploadString(imageRef,selectedFile,'data_url').
+                then(async () =>{
+                    const downloadURL = await getDownloadURL(imageRef) 
+                    await updateDoc(doc(db,'posts',docRef.id),{
+                        image:downloadURL,
+                    }) 
+                })
+            }
+
+            setLoadiing(false)
+            setInput('')
+            setSelectedFile(null)
+            setShowGif(false)
+        }
+
+        const addImageToPost = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const reader = new FileReader();
+            if(e.target.files&&e.target.files[0]){
+                reader.readAsDataURL(e.target.files[0]);
+            }
+            reader.onload = (readerEvent) =>{
+                setSelectedFile(readerEvent.target?.result as string);
+            } 
         };
         
 
 
   return (
-    <div className={`border-b border-gray-700 p-3 flex space-x-4 /overflow-y-scroll/`}>
+    <div className={`border-b border-gray-700 p-3 flex space-x-4 /overflow-y-scroll/ ${loading &&" opacity-40"}`}>
         {/* user */}
         <img src="https://media.moddb.com/cache/images/members/5/4550/4549205/thumb_620x2000/duck.jpg" 
           alt="" 
@@ -60,6 +107,8 @@ function Input({}: Props) {
             </div>
 
             {/* icon */}
+
+            {!loading && (
             <div className='flex items-center justify-between pt-2.5'>
                 <div className=' flex items-center '>
 
@@ -85,12 +134,17 @@ function Input({}: Props) {
                 </div>
 
                 {/* Sending */}
-                <div className='icon flex justify-center'> 
-                    <ArrowLongRightIcon className='h-[22px] text-[#1d9bf0]'/>
-                </div>
-
+                <button
+                className="bg-[#1d9bf0] text-white rounded-full px-4 py-1.5 
+                font-bold shadow-md hover:bg-[#1a8cd8] disabled:hover:bg-[#1d9bf0] 
+                disabled:opacity-50 disabled:cursor-default flex"
+                disabled={!input && !selectedFile}
+                onClick={sendPost}
+                >
+                    Send
+                </button>
             </div>
-            
+            )}
             
         </div>
 
