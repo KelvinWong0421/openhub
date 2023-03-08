@@ -10,66 +10,70 @@ import {
   updateDoc,
 } from "@firebase/firestore";
 import { getDownloadURL, ref, uploadString } from "@firebase/storage";
+import { useSession } from 'next-auth/react';
 
 type Props = {}
 
 function Input({}: Props) {
-        // hook
-        const [input,setInput] = useState('');
-        const [selectedFile, setSelectedFile] = useState<string | null>(null);
-        const [showGif, setShowGif] = useState(false);
-        const [loading, setLoadiing] = useState(false);
+    
+    //use session
+    const {data: session} = useSession();
+    // hook
+    const [input,setInput] = useState('');
+    const [selectedFile, setSelectedFile] = useState<string | null>(null);
+    const [showGif, setShowGif] = useState(false);
+    const [loading, setLoadiing] = useState(false);
 
-        const filePickerRef = useRef<HTMLInputElement>(null);
+    const filePickerRef = useRef<HTMLInputElement>(null);
 
-        // send post function
-        const sendPost = async() => {
-            if(loading) return;
-            setLoadiing(true);
+    // send post function
+    const sendPost = async() => {
+        if(loading) return;
+        setLoadiing(true);
 
-            const docRef = await addDoc(collection(db,'posts'),{
-                // id: session.user.uid,
-                // username: session.user.name,
-                // userImg: session.user.image,
-                // tag: session.user.tag,
-                text: input,
-                timestamp: serverTimestamp(),
-            });
+        const docRef = await addDoc(collection(db,'posts'),{
+            // id: session.user.uid,
+            // username: session.user.name,
+            // userImg: session.user.image,
+            // tag: session.user.tag,
+            text: input,
+            timestamp: serverTimestamp(),
+        });
 
-            const imageRef = ref(storage, `posts/${docRef.id}/image`);
+        const imageRef = ref(storage, `posts/${docRef.id}/image`);
 
-            if (selectedFile){
-                await uploadString(imageRef,selectedFile,'data_url').
-                then(async () =>{
-                    const downloadURL = await getDownloadURL(imageRef) 
-                    await updateDoc(doc(db,'posts',docRef.id),{
-                        image:downloadURL,
-                    }) 
-                })
-            }
-
-            setLoadiing(false)
-            setInput('')
-            setSelectedFile(null)
-            setShowGif(false)
+        if (selectedFile){
+            await uploadString(imageRef,selectedFile,'data_url').
+            then(async () =>{
+                const downloadURL = await getDownloadURL(imageRef) 
+                await updateDoc(doc(db,'posts',docRef.id),{
+                    image:downloadURL,
+                }) 
+            })
         }
 
-        const addImageToPost = (e: React.ChangeEvent<HTMLInputElement>) => {
-            const reader = new FileReader();
-            if(e.target.files&&e.target.files[0]){
-                reader.readAsDataURL(e.target.files[0]);
-            }
-            reader.onload = (readerEvent) =>{
-                setSelectedFile(readerEvent.target?.result as string);
-            } 
-        };
+        setLoadiing(false)
+        setInput('')
+        setSelectedFile(null)
+        setShowGif(false)
+    }
+
+    const addImageToPost = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const reader = new FileReader();
+        if(e.target.files&&e.target.files[0]){
+            reader.readAsDataURL(e.target.files[0]);
+        }
+        reader.onload = (readerEvent) =>{
+            setSelectedFile(readerEvent.target?.result as string);
+        } 
+    };
         
 
 
   return (
     <div className={`border-b border-gray-700 p-3 flex space-x-4 /overflow-y-scroll/ ${loading &&" opacity-40"}`}>
         {/* user */}
-        <img src="https://media.moddb.com/cache/images/members/5/4550/4549205/thumb_620x2000/duck.jpg" 
+        <img src={session?.user?.image??""}  
           alt="" 
           className='h-10 w-10 rounded-full cursor-pointer' 
         />
@@ -149,7 +153,6 @@ function Input({}: Props) {
         </div>
 
         
-
     </div>
   )
 }

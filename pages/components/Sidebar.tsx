@@ -13,11 +13,16 @@ import {
   EllipsisVerticalIcon,
   EllipsisHorizontalIcon
 } from '@heroicons/react/24/outline'
+import { signOut, useSession } from 'next-auth/react'
+
 
 
 type Props = {}
 
 const Sidebar = (props: Props) => {
+  //use session
+  const {data: session} = useSession();
+  
   return (
     <div className='hidden sm:flex flex-col items-center 
     xl:items-start xl:w-[340px] p-2 fixed h-full'>
@@ -41,16 +46,17 @@ const Sidebar = (props: Props) => {
           Tweet
         </button>
 
-        <div className='text-[#d9d9d9] flex items-center justify-center hoverAnimation xl:ml-auto xl:-mr-5 mt-auto '>
+        <div className='text-[#d9d9d9] flex items-center justify-center 
+        hoverAnimation xl:ml-auto xl:-mr-5 mt-auto' onClick={() =>signOut()}>
 
-          <img src="https://media.moddb.com/cache/images/members/5/4550/4549205/thumb_620x2000/duck.jpg" 
+          <img src={session?.user?.image??""} 
           alt="" 
           className='h-10 w-10 rounded-full xl:mr-2.5' 
           />
 
           <div className='hidden xl:inline leading-5'>
-            <h4 className='font-bold'>firebase 123</h4>
-            <p className='text-[#6e767d]'>@firebase 123</p>
+            <h4 className='font-bold'>{session?.user?.name}</h4>
+            <p className='text-[#6e767d]'>@{(session?.user as any)?.tag}</p>
           </div>
           <EllipsisHorizontalIcon className='h-5 hidden xl:inline ml-10'/> 
         </div>
