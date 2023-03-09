@@ -22,14 +22,14 @@ function Input({}: Props) {
     const [input,setInput] = useState('');
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
     const [showGif, setShowGif] = useState(false);
-    const [loading, setLoadiing] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const filePickerRef = useRef<HTMLInputElement>(null);
 
     // send post function
     const sendPost = async() => {
         if(loading) return;
-        setLoadiing(true);
+        setLoading(true);
 
         const docRef = await addDoc(collection(db,'posts'),{
             // id: session.user.uid,
@@ -52,7 +52,7 @@ function Input({}: Props) {
             })
         }
 
-        setLoadiing(false)
+        setLoading(false)
         setInput('')
         setSelectedFile(null)
         setShowGif(false)

@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import icon from '../pic/logo.png'
 import {ClientSafeProvider, LiteralUnion, signIn} from 'next-auth/react'
 import { BuiltInProviderType } from 'next-auth/providers'
+import Signup from './Signup'
+
 
 
 type Props = {
@@ -19,19 +21,26 @@ const Login = ({providers}: Props) => {
 //         ))
 //     ))} 
 
+    const [signup,setSignup]= useState(false);
+    
+    const clicked = () =>{
+        setSignup(!signup)
+    }
+
+
   return (
-    <div className='flex flex-col items-center space-y-20 pt-48'>
+    <div className='flex flex-col items-center space-y-10 pt-24'>
 
-
-
+        {!signup &&
         <Image src={icon} alt='icon'
-        width={150}
-        height={150}
+        width={200}
+        height={200}
         style={{ objectFit: "contain" }}
         />
+        }
+        
 
-
-
+        {!signup &&
         <div>
             {Object.values(providers).map((provider) =>(
                 Object.values(provider).map((info:any)=>(
@@ -49,6 +58,20 @@ const Login = ({providers}: Props) => {
                 ))
             ))}
         </div>
+        }
+        
+        <button onClick={()=> clicked()}>
+            {!signup &&<h2 className='text-white'>Signup</h2>}
+        </button>
+
+         {signup &&
+        <div className='pt-10'>
+            <Signup/>
+                <button onClick={()=> clicked()} >
+                <h2 className='text-white'>back</h2>
+            </button>
+        </div> 
+        }
 
         
     </div>
