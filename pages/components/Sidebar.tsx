@@ -27,10 +27,12 @@ const Sidebar = (props: Props) => {
     <div className='hidden sm:flex flex-col items-center 
     xl:items-start xl:w-[340px] p-2 fixed h-full'>
 
-        <div className='flex items-center justify-center w-12 
-        h-12 hoverAnimation p-0 xl:ml-24'>
-            <Image src={logo} width={40} height={40} alt='logo' /> 
+        <div className='flex items-center  w-16 
+        h-16 hoverAnimation p-0 xl:ml-24'>
+            <Image src={logo} width={65} height={65} alt='logo' /> 
+            <h1 className=' text-white font-bold hidden xl:inline ml-2 text-xl'> OpenHub</h1>
         </div>
+
         <div className='space-y-2.5 mt-4 mb-2.5 xl:ml-24'>
           <SidebarLink text='Home' Icon={HomeIcon} active/>
           <SidebarLink text='Explore' Icon={HashtagIcon} active={false}/>

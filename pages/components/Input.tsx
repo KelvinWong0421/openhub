@@ -12,12 +12,20 @@ import {
 import { getDownloadURL, ref, uploadString } from "@firebase/storage";
 import { useSession } from 'next-auth/react';
 
+
+
+
+
 type Props = {}
+
 
 function Input({}: Props) {
     
     //use session
     const {data: session} = useSession();
+
+
+    
     // hook
     const [input,setInput] = useState('');
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -30,12 +38,11 @@ function Input({}: Props) {
     const sendPost = async() => {
         if(loading) return;
         setLoading(true);
-
         const docRef = await addDoc(collection(db,'posts'),{
-            // id: session.user.uid,
-            // username: session.user.name,
-            // userImg: session.user.image,
-            // tag: session.user.tag,
+            id: (session?.user as any)?.uid,
+            username: session?.user?.name,
+            userImg: session?.user?.image,
+            tag: (session?.user as any)?.tag,
             text: input,
             timestamp: serverTimestamp(),
         });
