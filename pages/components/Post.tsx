@@ -1,5 +1,5 @@
 import { db } from '@/firebase'
-import { deleteDoc, onSnapshot, setDoc } from '@firebase/firestore'
+import { deleteDoc, onSnapshot, orderBy, query, setDoc } from '@firebase/firestore'
 import { ArrowsRightLeftIcon, ChartBarIcon, ChatBubbleBottomCenterTextIcon, EllipsisHorizontalIcon, ShareIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { collection, doc } from 'firebase/firestore'
 import { useSession } from 'next-auth/react'
@@ -25,6 +25,14 @@ function Post({id,post,postPage}: Props) {
     const [likes, setLikes] =useState([]);
     const [liked, setLiked] =useState(false);
     const router = useRouter();
+
+    useEffect(()=> 
+        onSnapshot(query(
+            collection(db,'posts',id,'comments')
+            ),
+            (snapshot)=> setComments(snapshot.docs as any)),
+        [db,id]
+    );
 
     useEffect(()=> 
         onSnapshot(collection(db,'posts',id,'likes'),(snapshot)=> setLikes(snapshot.docs as any)),

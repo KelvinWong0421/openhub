@@ -1,6 +1,6 @@
-
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useRouter } from 'next/router'
 
 interface SignupType {
   email: string;
@@ -9,6 +9,7 @@ interface SignupType {
 }
 const SignupPage = () => {
   const methods = useForm<SignupType>({ mode: "onBlur" });
+  const router = useRouter();
 
   const {
     register,
@@ -21,7 +22,7 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="sign-up-form container mx-auto w-96  border-2 rounded-3xl border-gray-400">
+    <div className="sign-up-form container mx-auto w-96  border-2 rounded-3xl border-gray-400 mt-24">
       <h2 className="px-12 mt-8 text-center text-2xl font-semibold text-white">Sign Up</h2>
       <FormProvider {...methods}>
         <form action="" className="w-80 mx-auto pb-12 px-4" onSubmit={handleSubmit(onSubmit)}>
@@ -80,7 +81,16 @@ const SignupPage = () => {
             </button>
           </div>
         </form>
+
+        <button onClick={() => router.back()} className='flex justify-end pt-8 text-center'>
+              <h2 className='text-white'>back</h2>
+        </button>
       </FormProvider>
+
+
+          
+ 
+
     </div>
   );
 };

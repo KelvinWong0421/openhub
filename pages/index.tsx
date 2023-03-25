@@ -2,10 +2,13 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Sidebar from './components/Sidebar'
 import Feed from './components/Feed'
+import Modal from './components/Modal'
 import { GetServerSidePropsContext } from 'next/types'
 import {   ClientSafeProvider, getProviders,getSession,LiteralUnion,useSession } from 'next-auth/react'
-import Login from './components/Login'
+import Auth from './Auth'
 import { BuiltInProviderType } from 'next-auth/providers'
+import { modalState } from '@/atoms/modalAtom'
+import { useRecoilState } from 'recoil'
 
 
 
@@ -14,8 +17,9 @@ import { BuiltInProviderType } from 'next-auth/providers'
 export default function Home(providers :Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>) {
 
   const {data: session} = useSession();
+  const [isOpen,setIsOpen] = useRecoilState(modalState);
 
-  if(!session) return <Login providers={providers}/>
+  if(!session) return <Auth providers={providers}/>
 
   return (
     <>
@@ -36,7 +40,7 @@ export default function Home(providers :Record<LiteralUnion<BuiltInProviderType,
         {/*Widgets*/}
 
         {/*Modal*/}
-
+        {isOpen&&<Modal/>}
       </main>
       
       
