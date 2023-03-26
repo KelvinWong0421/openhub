@@ -11,14 +11,17 @@ import { modalState } from '@/atoms/modalAtom'
 import { useRecoilState } from 'recoil'
 
 
+type Props = {
+    providers:Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>
+}
 
 
-
-export default function Home(providers :Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>) {
+export default function Home({providers}: Props) {
 
   const {data: session} = useSession();
   const [isOpen,setIsOpen] = useRecoilState(modalState);
 
+  
   if(!session) return <Auth providers={providers}/>
 
   return (
@@ -37,10 +40,9 @@ export default function Home(providers :Record<LiteralUnion<BuiltInProviderType,
         {/*Feed*/}
         <Feed/>
 
-        {/*Widgets*/}
-
         {/*Modal*/}
         {isOpen&&<Modal/>}
+
       </main>
       
       

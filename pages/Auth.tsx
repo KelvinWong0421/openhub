@@ -13,19 +13,11 @@ type Props = {
 
 const Auth = ({providers}: Props) => {
 
-//     console.log(providers)
-
-//    {Object.values(providers).map((provider)=>(
-//         Object.values(provider).map((info:any)=>(
-//             console.log(info.name)
-//         ))
-//     ))} 
-
 
 
     const router = useRouter();
     
-    const clicked = () =>{
+    const Signup = () =>{
         router.push('/signup')
     }
 
@@ -44,32 +36,28 @@ const Auth = ({providers}: Props) => {
 
         <div>
             {Object.values(providers).map((provider) =>(
-                Object.values(provider).map((info:any)=>(
-                <div key={info.name}>
+                
+                <div key={provider.name}>
                     <button className="relative inline-flex items-center justify-start  px-5 py-3 overflow-hidden font-bold rounded-full group" 
-                    onClick={() =>signIn(info.id, {callbackUrl: "/"})}>
+                    onClick={() =>signIn(provider.id, {callbackUrl: "/"})}>
                         <span className="w-32 h-32 rotate-45 translate-x-12 -translate-y-2 absolute left-0 top-0 bg-white opacity-[3%]"/>
                         <span className="absolute top-0 left-0 w-48 h-48 -mt-1 transition-all duration-500 ease-in-out rotate-45 -translate-x-56 -translate-y-24 bg-white opacity-100 group-hover:-translate-x-8"/>
                         <span className="relative w-full text-left text-white transition-colors duration-200 ease-in-out group-hover:text-gray-900">
-                        Sign in with {info.name}
+                        Sign in with {provider.name}
                         </span>
                         <span className="absolute inset-0 border-2 border-white rounded-full"/>
                     </button>  
                 </div>
-                ))
+
             ))}
         </div>
         
-        <button onClick={()=> clicked()}>
+        <button onClick={()=> Signup()}>
             <h2 className='text-white'>Signup</h2>
         </button>
 
 
-        <div className='pt-10'>
-            <button onClick={()=> clicked()} >
-                <h2 className='text-white'>back</h2>
-            </button>
-        </div> 
+
 
 
         

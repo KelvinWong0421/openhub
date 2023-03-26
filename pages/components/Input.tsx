@@ -82,7 +82,7 @@ function Input({}: Props) {
         {/* user */}
         <img src={session?.user?.image??""}  
           alt="" 
-          className='h-10 w-10 rounded-full cursor-pointer' 
+          className='h-11 w-11 rounded-full cursor-pointer' 
         />
         {/* input */}
         <div className='w-full divide-y-2 divide-gray-700'>
