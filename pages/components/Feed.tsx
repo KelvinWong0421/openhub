@@ -4,21 +4,27 @@ import { collection, DocumentData, onSnapshot, orderBy, query, QueryDocumentSnap
 import React, { useEffect, useState } from 'react'
 import Input from './Input'
 import Post from './Post';
+import { sidebarState } from '@/atoms/modalAtom';
+import { useRecoilState } from 'recoil';
 
 type Props = {}
 
 function Feed({}: Props) {
   const [posts, setPosts] = useState<QueryDocumentSnapshot<DocumentData>[]>([]);
+  const [state, setState] = useRecoilState(sidebarState);
+
 
   useEffect(()=> onSnapshot
     (
-      query(collection(db, 'posts'),orderBy('timestamp','desc')),
+      query(collection(db, 'posts'),
+      state === 'Explore' ? orderBy('views', 'desc'): orderBy('timestamp','desc')),
       (snapshot) => {
         setPosts(snapshot.docs);
       }
     ),
-    [db]
+    [db,state]
   );
+
 
   return (
     <div className='text-white flex-grow border-l border-r border-gray-700
@@ -37,7 +43,7 @@ function Feed({}: Props) {
 
       <div className='pb-72'>
         {posts.map((post) => (
-          <Post key={post.id} id={post.id} post={post.data()} postPage={undefined}/>
+          <Post key={post.id} id={post.id} post={post.data()} postPage={false}/>
         ))}
 
       </div>
@@ -48,3 +54,5 @@ function Feed({}: Props) {
 }
 
 export default Feed
+
+

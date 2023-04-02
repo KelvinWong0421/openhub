@@ -1,7 +1,7 @@
 import { db } from '@/firebase'
 import { deleteDoc, onSnapshot, orderBy, query, setDoc } from '@firebase/firestore'
 import { ArrowsRightLeftIcon, ChartBarIcon, ChatBubbleBottomCenterTextIcon, EllipsisHorizontalIcon, ShareIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { collection, doc } from 'firebase/firestore'
+import { collection, doc, runTransaction } from 'firebase/firestore'
 import { useSession } from 'next-auth/react'
 import router, { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
@@ -24,6 +24,7 @@ function Post({id,post,postPage}: Props) {
     const [comments, setComments] = useState([]);
     const [likes, setLikes] =useState([]);
     const [liked, setLiked] =useState(false);
+    const [views, setViews] =useState(0);
     const router = useRouter();
 
     useEffect(()=> 
@@ -44,6 +45,14 @@ function Post({id,post,postPage}: Props) {
         [likes]
     );
 
+     useEffect(()=> 
+        onSnapshot(doc(db, 'posts', id), (doc) => {
+            setViews(doc.data()?.views);
+        }),
+        [db,id]
+    );
+
+
     const likePost = async () => {
         if(liked)
         {
@@ -57,8 +66,35 @@ function Post({id,post,postPage}: Props) {
         }
     }
 
+
+    const incrementViewCount = async () => {
+        const postRef = doc(db, 'posts', id);
+        await runTransaction(db, async transaction => {
+            const postDoc = await transaction.get(postRef);
+            const views = postDoc.data()?.views || 0;
+            transaction.update(postRef, { views: views + 1 });
+        });
+    };
+
+
+    const share = '/'+id;
+    const base = "http://localhost:3000";
+
+    const links = base + share;
+    const copylink = () => {
+        navigator.clipboard.writeText(links)
+        alert('Copied')
+    }
+
+    const handlePostClick = async () => {
+        console.log(id);
+        await incrementViewCount();     // increment view count first
+        router.push(`/${id}`);     // then navigate to the post
+    };
+
+
   return (
-    <div className='p-3 flex cursor-pointer border-b border-gray-700' onClick={() => router.push(`/${id}`)}>
+    <div className='p-3 flex cursor-pointer border-b border-gray-700' onClick={handlePostClick}>
         {!postPage && (
             <img 
             src={post?.userImg} 
@@ -180,13 +216,24 @@ function Post({id,post,postPage}: Props) {
                     )}
 
                 </div>
-
+                
+                {/* share */}
                 <div className="icon group">
-                    <ShareIcon className="h-5 group-hover:text-[#1d9bf0]" />
+                    <ShareIcon className="h-5 group-hover:text-[#1d9bf0]" 
+                    onClick={(e) => {
+                    e.stopPropagation();
+                    copylink();
+                    }}/>
                 </div>
 
-                <div className="icon group">
+                {/* view count */}
+                <div className="icon group space-x-1">
                     <ChartBarIcon className="h-5 group-hover:text-[#1d9bf0]" />
+                    {views > 0 && (
+                    <span className={`group-hover:text-[#1d9bf0] text-sm`}>
+                        {views}
+                    </span>
+                    )}
                 </div>
 
             </div>

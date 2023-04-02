@@ -9,3 +9,8 @@ export const postIdState = atom({
   key: "postIdState",
   default: "",
 });
+
+export const sidebarState = atom({
+  key: "sidebarState",
+  default: "Home",
+});

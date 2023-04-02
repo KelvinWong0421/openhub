@@ -45,6 +45,7 @@ function Input({}: Props) {
             tag: (session?.user as any)?.tag,
             text: input,
             timestamp: serverTimestamp(),
+            views: 0
         });
 
         const imageRef = ref(storage, `posts/${docRef.id}/image`);

@@ -10,10 +10,14 @@ import {
   InboxIcon,
   BookmarkIcon,
   UserIcon,
-  EllipsisVerticalIcon,
-  EllipsisHorizontalIcon
+  EllipsisHorizontalIcon,
+  ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline'
 import { signOut, useSession } from 'next-auth/react'
+import { useRecoilState } from 'recoil'
+import {  sidebarState } from '@/atoms/modalAtom'
+import { useRouter } from 'next/router'
+
 
 
 
@@ -22,6 +26,10 @@ type Props = {}
 const Sidebar = (props: Props) => {
   //use session
   const {data: session} = useSession();
+  const [state, setState] = useRecoilState(sidebarState);
+  const router = useRouter();
+
+
   
   return (
     <div className='hidden sm:flex flex-col items-center 
@@ -30,17 +38,30 @@ const Sidebar = (props: Props) => {
         <div className='flex items-center  w-16 
         h-16 hoverAnimation p-0 xl:ml-24'>
             <Image src={logo} width={65} height={65} alt='logo' /> 
-            <h1 className=' text-white font-bold hidden xl:inline ml-2 text-xl'> OpenHub</h1>
+            <h1 className=' text-white font-bold hidden xl:inline ml-2 text-xl'>OpenHub</h1>
         </div>
 
         <div className='space-y-2.5 mt-4 mb-2.5 xl:ml-24'>
-          <SidebarLink text='Home' Icon={HomeIcon} active/>
-          <SidebarLink text='Explore' Icon={HashtagIcon} active={false}/>
-          <SidebarLink text='Notifications' Icon={BellIcon} active={false}/>
-          <SidebarLink text='Messages' Icon={InboxIcon} active={false}/>
-          <SidebarLink text='Bookmarks' Icon={BookmarkIcon} active={false}/>
-          <SidebarLink text='Profile' Icon={UserIcon} active={false}/>
-          <SidebarLink text='More' Icon={EllipsisVerticalIcon} active={false}/>
+          <button onClick={()=>{setState('Home');router.push('/');}} className='flex'>
+            <SidebarLink text='Home' Icon={HomeIcon} active={state=='Home'}/>
+          </button>
+
+          <button onClick={()=>setState('Explore')} className='flex'>
+            <SidebarLink text='Explore' Icon={HashtagIcon} active={state=='Explore'}/>
+          </button>
+
+          <button onClick={()=>setState('Notifications')} className='flex'>
+            <SidebarLink text='Notifications' Icon={BellIcon} active={state=='Notifications'}/>
+          </button>
+
+          <button onClick={()=>setState('Profile')} className='flex'>
+            <SidebarLink text='Profile' Icon={UserIcon} active={state=='Profile'}/>
+          </button>
+
+          <button onClick={() =>signOut()} className='flex'>
+            <SidebarLink text='Logout' Icon={ArrowLeftOnRectangleIcon} active={false} />
+          </button>
+          
         </div>
 
         <button className=' w-12 h-12 hidden xl:inline ml-auto bg-[#1d9bf0] text-white 
@@ -49,7 +70,7 @@ const Sidebar = (props: Props) => {
         </button>
 
         <div className='text-[#d9d9d9] flex items-center justify-center 
-        hoverAnimation xl:ml-auto xl:-mr-5 mt-auto' onClick={() =>signOut()}>
+        hoverAnimation xl:ml-auto xl:-mr-5 mt-auto' >
 
           <img src={session?.user?.image??""} 
           alt="" 
