@@ -2,6 +2,7 @@ import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useRouter } from 'next/router'
 
+
 interface SignupType {
   email: string;
   password: string;

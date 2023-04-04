@@ -38,8 +38,7 @@ function PostPage({providers}: Props) {
     const {id} = router.query;
 
     if(!session) {
-        console.log(providers)
-        return <Auth providers={providers}/>;
+        router.push('/auth');
     }
 
     useEffect(()=>

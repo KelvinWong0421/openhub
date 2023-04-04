@@ -7,6 +7,9 @@ import { useRouter } from 'next/router'
 
 
 
+
+
+
 type Props = {
     providers:Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>
 }
@@ -18,24 +21,22 @@ const Auth = ({providers}: Props) => {
     const router = useRouter();
     
     const Signup = () =>{
+        
         router.push('/signup')
     }
 
 
   return (
-    <div className='flex flex-col items-center space-y-10 pt-24'>
+    <div className='bg-gray-800 text-white h-screen w-screen flex justify-center items-center'>
 
         
-        <Image src={icon} alt='icon'
-        width={200}
-        height={200}
-        style={{ objectFit: "contain" }}
-        />
-        
+        <div className="flex flex-col bg-black pb-32 px-32 pt-8 rounded-3xl gap-3">
+        <Image src={icon} alt='icon' className='w-[150px] h-[150px] self-center'/>
+         <p className="text-xl font-bold mb-4 xl:text-2xl self-center">Login to OpenHub</p>
 
 
-        <div>
-            {Object.values(providers).map((provider) =>(
+            <div className='flex items-center justify-center gap-3 w-full cursor-pointer'>
+            {Object.values(providers?? []).map((provider) =>(
                 
                 <div key={provider.name}>
                     <button className="relative inline-flex items-center justify-start  px-5 py-3 overflow-hidden font-bold rounded-full group" 
@@ -50,12 +51,43 @@ const Auth = ({providers}: Props) => {
                 </div>
 
             ))}
-        </div>
-        
-        <button onClick={()=> Signup()}>
-            <h2 className='text-white'>Signup</h2>
-        </button>
+            </div>
+            
+            <div className='flex items-center justify-center gap-3 w-full cursor-pointer'>
+                <button className="relative inline-flex items-center justify-start  px-5 py-3 overflow-hidden font-bold rounded-full group cursor-not-allowed">
+                    <span className="w-32 h-32 rotate-45 translate-x-12 -translate-y-2 absolute left-0 top-0 bg-white opacity-[3%]"/>
+                    <span className="absolute top-0 left-0 w-48 h-48 -mt-1 transition-all duration-500 ease-in-out rotate-45 -translate-x-56 -translate-y-24 bg-white opacity-100 group-hover:-translate-x-8"/>
+                    <span className="relative w-full text-left text-white transition-colors duration-200 ease-in-out group-hover:text-gray-900">
+                        Sign in with email
+                    </span>
+                    <span className="absolute inset-0 border-2 border-white rounded-full"/>
+                </button>
+            </div>
 
+            <div className="relative py-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-b border-gray-700"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-black px-1 text-sm text-white">or</span>
+                </div>
+            </div>
+
+            <input
+            className="bg-black border text-gray-700 border-gray-700 px-2 py-3 rounded cursor-not-allowed"
+            placeholder="Phone, email or username"
+            />
+              
+            <button className="mt-2 w-full text-white  hover:bg-gray-800 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 border border-white font-medium rounded-3xl text-sm px-5 py-1.5 text-center cursor-not-allowed">
+                Forgot pasword?
+            </button>
+
+            <div className="flex gap-2 mt-10">
+                <p>Don&apos;t have an account?</p>
+                <p className="text-blue-500 cursor-not-allowed">Sign up</p>
+            </div>
+        
+        </div>
 
 
 
