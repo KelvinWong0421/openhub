@@ -1,11 +1,13 @@
-import { onSnapshot } from 'firebase/firestore'
+import { deleteDoc, onSnapshot, setDoc } from 'firebase/firestore'
 import { ClientSafeProvider, getProviders, getSession, LiteralUnion, useSession } from 'next-auth/react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 
-import { db } from "@/firebase";
+import firebase, { db } from "@/firebase";
+
+
 import {
   addDoc,
   collection,
@@ -19,7 +21,6 @@ import Auth from '../Auth'
 import { GetServerSidePropsContext } from 'next'
 import { BuiltInProviderType } from 'next-auth/providers'
 import { ArrowLeftIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
-import Post from '../components/Post'
 import { Popover } from '@headlessui/react'
 import { Animate } from 'react-simple-animate'
 import { BeatLoader } from 'react-spinners'
@@ -31,9 +32,14 @@ type Props = {
 
 function User({providers}: Props) {
 
-  const [profile, setProfile] = useState('');
+
+  //for follow system
   const [loading, setLoading] = useState(false);
   const [follow, setFollow] = useState('Follow');
+  const [isfollowed, setIsfollowed] = useState(false);
+  const [following, setFollowing] = useState([]);
+  const [followers, setFollowers] = useState([]);
+
   const [currentUser, setCurrentUser] = useState('');
   const [showEditor, setShowEditor] = useState(false);
   const [profileName, setProfileName] = useState('');
@@ -41,6 +47,7 @@ function User({providers}: Props) {
   const [profileLocation, setProfileLocation] = useState('');
   const [inputImage, setInputImage] = useState(null);
   const [inputBanner, setInputBanner] = useState(null);
+  const [index, setIndex] = useState('userTweets');
 
   const {data: session} = useSession();
   const router = useRouter();
@@ -52,15 +59,13 @@ function User({providers}: Props) {
   image: string,
   tag: string,
   bio: string,
-  followers: [],
-  following: [],
   type: string,
   }
   const [user,setUser] = useState<user|any>(null);
 
   if(!session) return <Auth providers={providers}/>
 
-
+  //fetch user data
   useEffect(()=>
     onSnapshot(doc(db,'users',uid as string),(snapshot)=>{
       setUser(snapshot.data())
@@ -68,7 +73,54 @@ function User({providers}: Props) {
     [uid]
   )
 
-  console.log(user)
+  //fetch user following
+  useEffect(()=> 
+    onSnapshot(collection(db,'users',uid as string,'following'),(snapshot)=> setFollowing(snapshot.docs as any)),
+    [db,uid]
+  );
+  
+  //fetch user followers
+  useEffect(()=> 
+    onSnapshot(collection(db,'users',uid as string,'followers'),(snapshot)=> setFollowers(snapshot.docs as any)),
+    [db,uid]
+  );
+  
+  //update the state of following
+  useEffect(()=> {
+    setIsfollowed(followers.findIndex((followers : any) => followers.id === (session.user as any).uid) !== -1),
+    [uid,following]
+      {isfollowed ? setFollow('UnFollow'):setFollow('Follow')} 
+    }
+  );
+  
+  console.log(followers);
+  
+  //handle Follow
+  const handleFollowClick = async () => {
+    setLoading(true);
+    if(isfollowed)
+    { 
+      // delete target ac followers
+      await deleteDoc(doc(db,'users',uid as string,'followers',(session?.user as any).uid));
+
+      // delete session-user following
+      await deleteDoc(doc(db,'users',(session?.user as any).uid,'following',uid as string));
+      setLoading(false);
+    } 
+    else 
+    { 
+      //target
+      await setDoc(doc(db,'users',uid as string,'followers',(session?.user as any).uid) ,{
+        username: session?.user?.name
+      });
+      //session
+      await setDoc(doc(db,'users',(session?.user as any).uid,'following',uid as string) ,{
+        username: user.name
+      });
+      setLoading(false);
+    }
+  };
+
 
 
   return (
@@ -129,15 +181,13 @@ function User({providers}: Props) {
               />
             ) : null}
             
+            {/* if is user is not session user  */}
+            {user?.uid !== (session?.user as any).uid ? (
+              <button className="ml-12 absolute left-[23.5em] text-black bg-white font-bold border rounded-full py-1 px-4 cursor-pointer hover:bg-gray-200" onClick={handleFollowClick}>
+                {!loading ? <p>{follow}</p> : <BeatLoader color="black" size={10} />}
+              </button>
+            ) : null}
 
-            <button
-              onClick={() => {
-                // if (user.uid !== currentUser.uid) handleFollow();
-              }}
-              className="absolute left-[23.5em] text-black bg-white font-bold border rounded-full  py-1 px-4 cursor-pointer hover:bg-gray-200"
-            >
-              {/* {!loading ? <p>{follow}</p> : <BeatLoader color="black" size={10} />} */}
-            </button>
           </div>
 
           <div className="ml-5 mr-5 mt-20 flex flex-col gap-1">
@@ -149,15 +199,46 @@ function User({providers}: Props) {
 
             <div className="flex gap-2">
               <div onClick={() => router.push(`/user/${user?.uid}/following`)} className="flex items-center gap-1 cursor-pointer">
-                {user?.following ? <p className='text-white'>{user.following?.length}</p> : null}
+                {following? <p className='text-white'>{following.length}</p> : 0}
                 <p className="text-gray-400 font-light">Following</p>
               </div>
 
               <div onClick={() => router.push(`/user/${user?.uid}/followers`)} className="flex items-center gap-1 cursor-pointer">
-                {user?.followers ? <p className='text-white'>{user.followers.length}</p> : null}{' '}
+                {followers? <p className='text-white'>{followers.length}</p> : 0}{' '}
                 <p className="text-gray-400 font-light">Followers</p>
               </div>
             </div>
+          </div>
+
+          <div className="flex mx-10 mt-8 mb-4 justify-between text-gray-400 font-bold text-sm">
+            <p
+              onClick={() => setIndex('userTweets')}
+              style={{ color: index === 'userTweets' ? 'white' : '#9ca3af' }}
+              className="cursor-pointer py-1 px-3"
+            >
+              Tweet
+            </p>
+            <p
+              onClick={() => setIndex('userReplies')}
+              style={{ color: index === 'userReplies' ? 'white' : '#9ca3af' }}
+              className="cursor-pointer py-1 px-3"
+            >
+              Tweets & replies
+            </p>
+            <p
+              onClick={() => setIndex('userMedia')}
+              style={{ color: index === 'userMedia' ? 'white' : '#9ca3af' }}
+              className="cursor-pointer py-1 px-3"
+            >
+              Media
+            </p>
+            <p
+              onClick={() => setIndex('userLikes')}
+              style={{ color: index === 'userLikes' ? 'white' : '#9ca3af' }}
+              className="cursor-pointer py-1 px-3"
+            >
+              Likes
+            </p>
           </div>
 
           

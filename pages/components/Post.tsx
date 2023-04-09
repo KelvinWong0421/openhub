@@ -37,7 +37,7 @@ function Post({id,post,postPage}: Props) {
 
     useEffect(()=> 
         onSnapshot(collection(db,'posts',id,'likes'),(snapshot)=> setLikes(snapshot.docs as any)),
-        [db,id]
+        [id]
     );
 
     useEffect(()=> 
@@ -51,6 +51,8 @@ function Post({id,post,postPage}: Props) {
         }),
         [db,id]
     );
+
+    console.log(likes);
 
 
     const likePost = async () => {
