@@ -37,9 +37,7 @@ function PostPage({providers}: Props) {
     const router = useRouter();
     const {id} = router.query;
 
-    if(!session) {
-        router.push('/auth');
-    }
+    if(!session) return <Auth providers={providers}/>
 
     useEffect(()=>
         onSnapshot(doc(db,'posts',id as any),(snapshot)=>{

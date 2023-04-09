@@ -29,6 +29,12 @@ const Sidebar = (props: Props) => {
   const [state, setState] = useRecoilState(sidebarState);
   const router = useRouter();
 
+  const uid = (session?.user as any).uid
+
+  const ProfileClick = () => {
+    router.push(`/user/${uid}`);     //  navigate to the user setting
+  };
+
 
   
   return (
@@ -54,7 +60,7 @@ const Sidebar = (props: Props) => {
             <SidebarLink text='Notifications' Icon={BellIcon} active={state=='Notifications'}/>
           </button>
 
-          <button onClick={()=>setState('Profile')} className='flex'>
+          <button onClick={()=>{setState('Profile');ProfileClick()}} className='flex'>
             <SidebarLink text='Profile' Icon={UserIcon} active={state=='Profile'}/>
           </button>
 
