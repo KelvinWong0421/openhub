@@ -52,7 +52,6 @@ function Post({id,post,postPage}: Props) {
         [db,id]
     );
 
-    console.log(likes);
 
 
     const likePost = async () => {

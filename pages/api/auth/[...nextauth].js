@@ -33,8 +33,6 @@ export const authOptions = {
             image: session?.user?.image,
             tag: session.user.name.split(" ").join("").toLocaleLowerCase(),
             bio: "",
-            followers: [],
-            following: [],
             type: 'user',
           };
           await setDoc(userRef, newUser);

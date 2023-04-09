@@ -42,7 +42,7 @@ const Sidebar = (props: Props) => {
     xl:items-start xl:w-[340px] p-2 fixed h-full'>
 
         <div className='flex items-center  w-16 
-        h-16 hoverAnimation p-0 xl:ml-24'>
+        h-16 hoverAnimation p-0 xl:ml-24' onClick={()=>router.push('/')}>
             <Image src={logo} width={65} height={65} alt='logo' /> 
             <h1 className=' text-white font-bold hidden xl:inline ml-2 text-xl'>OpenHub</h1>
         </div>
@@ -83,7 +83,7 @@ const Sidebar = (props: Props) => {
           className='h-10 w-10 rounded-full xl:mr-2.5' 
           />
 
-          <div className='hidden xl:inline leading-5'>
+          <div className='hidden xl:inline leading-5' onClick={ProfileClick}>
             <h4 className='font-bold'>{session?.user?.name}</h4>
             <p className='text-[#6e767d]'>@{(session?.user as any)?.tag}</p>
           </div>
