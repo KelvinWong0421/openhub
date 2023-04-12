@@ -43,14 +43,15 @@ function User({providers}: Props) {
   const [following, setFollowing] = useState([]);
   const [followers, setFollowers] = useState([]);
 
-
+  //edit function
+  const [name, setName] = useState('');
   const [showEditor, setShowEditor] = useState(false);
-  const [profileName, setProfileName] = useState('');
-  const [profileBio, setProfileBio] = useState('');
+  const [bio, setBio] = useState('');
   const [inputImage, setInputImage] = useState<string | null>(null);
   const [inputBanner, setInputBanner] = useState<string | null>(null);
   const [index, setIndex] = useState('userTweets');
 
+  //session and user info
   const {data: session} = useSession();
   const router = useRouter();
   const {uid} = router.query;
@@ -145,80 +146,56 @@ function User({providers}: Props) {
   };
 
   // handle user Profile change
-  // const handleSave = async() => {
-  //   setLoading(true);
+  const handleSave = async() => {
+    setLoading(true);
 
-  //   const imageRef = ref(storage, `posts/${user.id}/image`);
+    const docRef = doc(db,'users',user.uid);
 
-  //   if (inputImage){
-  //       await uploadString(imageRef,inputImage,'data_url').
-  //       then(async () =>{
-  //           const downloadURL = await getDownloadURL(imageRef) 
-  //           await updateDoc(doc(db,'posts',docRef.id),{
-  //               image:downloadURL,
-  //           }) 
-  //       })
-  //   }
-  // }
-  //       setLoading(false)
-  //       setInput('')
-  //       setSelectedFile(null)
-  //       setShowGif(false)
-  //   }
+    const profileRef = ref(storage, `users/${user.uid}/profile`);
+    const bannerRef = ref(storage, `users/${user.uid}/banner`);
 
-  // async function handleSave() {
-  //   setLoading(true);
-  //   const updateRef = doc(db, 'users', (session?.user as any).uid);
+    if (inputImage){
+      await uploadString(profileRef,inputImage,'data_url').
+      then(async () =>{
+          const downloadURL = await getDownloadURL(profileRef) 
+          await updateDoc(doc(db,'users',docRef.id),{
+              image:downloadURL,
+          }) 
+      })
+    }
 
-  //   if (inputImage !== null) {
-  //     const randomNumber = Math.floor(Math.random() * 900) + 1;
-  //     const file = inputImage;
-  //     const localfileBlob = URL.createObjectURL(file);
-  //     const storage = getStorage();
-  //     const storageRef = ref(storage, `${randomNumber}-${file.name}`);
+    if (inputBanner){
+      await uploadString(bannerRef,inputBanner,'data_url').
+      then(async () =>{
+          const downloadURL = await getDownloadURL(bannerRef) 
+          await updateDoc(doc(db,'users',docRef.id),{
+              banner:downloadURL,
+          }) 
+      })
+    }
 
-  //     uploadBytes(storageRef, file);
-  //     const fileSnapshot = await uploadBytesResumable(
-  //       storageRef,
-  //       localfileBlob
-  //     );
-  //     const imageDownloadURL = await getDownloadURL(storageRef);
 
-  //     await updateDoc(updateRef, {
-  //       profilePicURL: imageDownloadURL,
-  //     });
-  //   }
-  //   //
-  //   if (inputBanner !== null) {
-  //     const randomNumber = Math.floor(Math.random() * 900) + 1;
-  //     const file = inputBanner;
-  //     const localfileBlob = URL.createObjectURL(file);
+    if (bio !== user.bio){
+      await updateDoc(doc(db,'users',docRef.id),{
+        bio:bio,
+      }) 
+    }
 
-  //     const storage = getStorage();
-  //     const storageRef = ref(storage, `${randomNumber}-${file.name}`);
 
-  //     uploadBytes(storageRef, file);
-  //     const fileSnapshot = await uploadBytesResumable(
-  //       storageRef,
-  //       localfileBlob
-  //     );
-  //     const imageDownloadURL = await getDownloadURL(storageRef);
+    if (name !== user.name){
+      await updateDoc(doc(db,'users',docRef.id),{
+        name:name,
+        tag:name.split(" ").join("").toLocaleLowerCase(),
+      }) 
+    }
 
-  //     await updateDoc(updateRef, {
-  //       banner: imageDownloadURL,
-  //     });
-  //   }
+    setInputBanner(null);
+    setInputImage(null);
+    setBio(user.bio);
+    setName(user.name);
+    setLoading(false);
+  }
 
-  //   await updateDoc(updateRef, {
-  //     name: profileName,
-  //     bio: profileBio,
-  //   });
-
-  //   setLoading(false);
-  //   setInputBanner(null);
-  //   setInputImage(null);
-  //   setShowEditor(false);
-  // }
 
 
   return (
@@ -244,7 +221,9 @@ function User({providers}: Props) {
           </div>
           
           {/* show personal info */}
-          <div className="h-44 w-35 bg-gray-800 bg-cover bg-center" />
+          <div className="h-44 w-35 bg-gray-800 bg-cover bg-center" 
+          style={{backgroundImage:user?.banner? `url('${user?.banner}')`: ''}}
+          />
 
           <div className="relative ml-5 ">
             <Popover>
@@ -274,6 +253,10 @@ function User({providers}: Props) {
                 className="ml-11 absolute left-[20.5em] p-1 text-2xl w-8 h-8 text-white hover:bg-gray-800 border rounded-full border-gray-500 cursor-pointer"
                 onClick={() => {
                   setShowEditor(true);
+                  setName(user?.name);
+                  setBio(user?.bio);
+                  setInputBanner(null);
+                  setInputImage(null);
                 }}
               />
             ) : null}
@@ -300,7 +283,7 @@ function User({providers}: Props) {
                 :null }
               </div>
             </div>
-            <p>{user?.bio}</p>
+            <p className='text-white font-mono'>{user?.bio}</p>
 
             <div className="flex gap-2">
               <div onClick={() => router.push(`/user/${user?.uid}/following`)} className="flex items-center gap-1 cursor-pointer">
@@ -349,10 +332,10 @@ function User({providers}: Props) {
           {!showEditor ? null : (
             <div
               onClick={() => {
-                setProfileName(user.name);
-                setProfileBio(user.bio);
+                setName(user?.name);
+                setBio(user?.bio);
                 setInputBanner(null);
-                setInputImage(user.image);
+                setInputImage(null);
                 setShowEditor(false);
               }}
               className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-screen h-screen bg-gray-700 bg-opacity-80 z-50"
@@ -367,8 +350,8 @@ function User({providers}: Props) {
                       <XMarkIcon
                         className="text-xl font-light cursor-pointer bg-white rounded-full hover:bg-gray-300"
                         onClick={() => {
-                          setProfileName(user?.name);
-                          setProfileBio(user?.bio);
+                          setName(user?.name);
+                          setBio(user?.bio);
                           setInputBanner(null);
                           setInputImage(null);
                           setShowEditor(false);
@@ -378,7 +361,7 @@ function User({providers}: Props) {
                     </div>
                     <button
                       onClick={() => {
-                        // handleSave();
+                        handleSave();
                       }}
                       className="text-base font-bold border rounded-full bg-white text-black  py-1 px-4 cursor-pointer hover:bg-gray-300"
                     >
@@ -387,7 +370,7 @@ function User({providers}: Props) {
                   </div>
                   <div className="flex flex-col gap-5 mt-5 relative">
                     <div
-                      style={{backgroundImage:inputBanner? `url('${inputBanner}')`: ''}}
+                      style={{backgroundImage:inputBanner? `url('${inputBanner}')`: `url('${user.banner}')`}}
                       className="bg-gray-600 h-40 bg-cover bg-center"
                     />
                     <img
@@ -416,16 +399,16 @@ function User({providers}: Props) {
                     <div className="border border-gray-700 rounded p-2 mt-[4em]">
                       <p className="text-gray-400 font-light text-sm">Name</p>
                       <input
-                        value={profileName}
-                        onChange={(e) => setProfileName(e.target.value)}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         className="bg-black text-white outline-none mt-1 w-full placeholder:text-xl placeholder:text-gray-500"
                       />
                     </div>
                     <div className="border border-gray-700 rounded p-2 ">
                       <p className="text-gray-400 font-light text-sm">Bio</p>
                       <input
-                        value={profileBio}
-                        onChange={(e) => setProfileBio(e.target.value)}
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
                         className="bg-black text-white outline-none mt-1 w-full placeholder:text-xl placeholder:text-gray-500"
                       />
                     </div>

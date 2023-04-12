@@ -34,6 +34,7 @@ export const authOptions = {
             tag: session.user.name.split(" ").join("").toLocaleLowerCase(),
             bio: "",
             type: 'user',
+            banner:''
           };
           await setDoc(userRef, newUser);
 

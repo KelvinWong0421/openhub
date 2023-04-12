@@ -1,4 +1,4 @@
-import { ArrowLongRightIcon, GifIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { GifIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import React, { useRef, useState } from 'react'
 
 import { db, storage } from "@/firebase";
@@ -98,7 +98,6 @@ function Input({}: Props) {
                 tracking-wide w-full min-h-[60px]' 
                 />
 
-                
                 {selectedFile &&(
                 <div className='relative'>
 
