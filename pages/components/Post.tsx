@@ -138,7 +138,7 @@ function Post({id,post,postPage}: Props) {
         )}
 
         <div className='flex flex-col space-y-2 w-full'>
-            <div className={`flex ${!postPage && 'justify-between'}`} onClick={(e)=>{e.stopPropagation();iconClick();}} > 
+            <div className={`flex ${!postPage && 'justify-between'}`}  > 
                 {postPage && (
                     <img 
                     src={post?.userImg} 
