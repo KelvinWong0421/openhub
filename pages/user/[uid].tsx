@@ -5,7 +5,8 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 
-import firebase, { db } from "@/firebase";
+import { db, storage } from "@/firebase";
+import { getDownloadURL, ref, uploadString } from "@firebase/storage";
 
 
 import {
@@ -17,13 +18,15 @@ import {
   serverTimestamp,
   updateDoc,
 } from "@firebase/firestore";
+
 import Auth from '../Auth'
 import { GetServerSidePropsContext } from 'next'
 import { BuiltInProviderType } from 'next-auth/providers'
-import { ArrowLeftIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, CameraIcon, Cog6ToothIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Popover } from '@headlessui/react'
 import { Animate } from 'react-simple-animate'
 import { BeatLoader } from 'react-spinners'
+
 
 type Props = {
     providers:Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>
@@ -40,13 +43,12 @@ function User({providers}: Props) {
   const [following, setFollowing] = useState([]);
   const [followers, setFollowers] = useState([]);
 
-  const [currentUser, setCurrentUser] = useState('');
+
   const [showEditor, setShowEditor] = useState(false);
   const [profileName, setProfileName] = useState('');
   const [profileBio, setProfileBio] = useState('');
-  const [profileLocation, setProfileLocation] = useState('');
-  const [inputImage, setInputImage] = useState(null);
-  const [inputBanner, setInputBanner] = useState(null);
+  const [inputImage, setInputImage] = useState<string | null>(null);
+  const [inputBanner, setInputBanner] = useState<string | null>(null);
   const [index, setIndex] = useState('userTweets');
 
   const {data: session} = useSession();
@@ -121,12 +123,108 @@ function User({providers}: Props) {
     }
   };
 
+  //add Profile image
+  const ProfileImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const reader = new FileReader();
+    if(e.target.files&&e.target.files[0]){
+      reader.readAsDataURL(e.target.files[0]);
+    }
+    reader.onload = (readerEvent) =>{
+      setInputImage(readerEvent.target?.result as string);
+    } 
+  };
+  //add banner image
+  const BannerImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const reader = new FileReader();
+    if(e.target.files&&e.target.files[0]){
+      reader.readAsDataURL(e.target.files[0]);
+    }
+    reader.onload = (readerEvent) =>{
+      setInputBanner(readerEvent.target?.result as string);
+    } 
+  };
+
+  // handle user Profile change
+  // const handleSave = async() => {
+  //   setLoading(true);
+
+  //   const imageRef = ref(storage, `posts/${user.id}/image`);
+
+  //   if (inputImage){
+  //       await uploadString(imageRef,inputImage,'data_url').
+  //       then(async () =>{
+  //           const downloadURL = await getDownloadURL(imageRef) 
+  //           await updateDoc(doc(db,'posts',docRef.id),{
+  //               image:downloadURL,
+  //           }) 
+  //       })
+  //   }
+  // }
+  //       setLoading(false)
+  //       setInput('')
+  //       setSelectedFile(null)
+  //       setShowGif(false)
+  //   }
+
+  // async function handleSave() {
+  //   setLoading(true);
+  //   const updateRef = doc(db, 'users', (session?.user as any).uid);
+
+  //   if (inputImage !== null) {
+  //     const randomNumber = Math.floor(Math.random() * 900) + 1;
+  //     const file = inputImage;
+  //     const localfileBlob = URL.createObjectURL(file);
+  //     const storage = getStorage();
+  //     const storageRef = ref(storage, `${randomNumber}-${file.name}`);
+
+  //     uploadBytes(storageRef, file);
+  //     const fileSnapshot = await uploadBytesResumable(
+  //       storageRef,
+  //       localfileBlob
+  //     );
+  //     const imageDownloadURL = await getDownloadURL(storageRef);
+
+  //     await updateDoc(updateRef, {
+  //       profilePicURL: imageDownloadURL,
+  //     });
+  //   }
+  //   //
+  //   if (inputBanner !== null) {
+  //     const randomNumber = Math.floor(Math.random() * 900) + 1;
+  //     const file = inputBanner;
+  //     const localfileBlob = URL.createObjectURL(file);
+
+  //     const storage = getStorage();
+  //     const storageRef = ref(storage, `${randomNumber}-${file.name}`);
+
+  //     uploadBytes(storageRef, file);
+  //     const fileSnapshot = await uploadBytesResumable(
+  //       storageRef,
+  //       localfileBlob
+  //     );
+  //     const imageDownloadURL = await getDownloadURL(storageRef);
+
+  //     await updateDoc(updateRef, {
+  //       banner: imageDownloadURL,
+  //     });
+  //   }
+
+  //   await updateDoc(updateRef, {
+  //     name: profileName,
+  //     bio: profileBio,
+  //   });
+
+  //   setLoading(false);
+  //   setInputBanner(null);
+  //   setInputImage(null);
+  //   setShowEditor(false);
+  // }
 
 
   return (
     <div>
       <Head>
-        <title>{} on Twitter:'{}'</title>
+        <title>{user?.name}</title>
         <link rel="icon" href="/favicon.ico "  />
       </Head>
       
@@ -175,8 +273,7 @@ function User({providers}: Props) {
               <Cog6ToothIcon 
                 className="ml-11 absolute left-[20.5em] p-1 text-2xl w-8 h-8 text-white hover:bg-gray-800 border rounded-full border-gray-500 cursor-pointer"
                 onClick={() => {
-                  // setProfileName(profile.displayName);
-                  // setShowEditor(true);
+                  setShowEditor(true);
                 }}
               />
             ) : null}
@@ -192,8 +289,16 @@ function User({providers}: Props) {
 
           <div className="ml-5 mr-5 mt-20 flex flex-col gap-1">
             <div>
-              <p className="font-bold">{user?.name}</p>
-              <p className="font-light text-gray-400">@{user?.tag}</p>
+              <p className="font-bold text-white">{user?.name}</p>
+              <div className="font-light text-gray-400 flex">
+                @{user?.tag}
+                {user?.type === 'admin'? 
+                  <p className='text-red-600 rounded-full font-mono ml-6 flex mt-0 '>
+                    <UserIcon className='flex h-4 w-4 mt-1'/>
+                    Admin
+                  </p>
+                :null }
+              </div>
             </div>
             <p>{user?.bio}</p>
 
@@ -241,7 +346,94 @@ function User({providers}: Props) {
             </p>
           </div>
 
-          
+          {!showEditor ? null : (
+            <div
+              onClick={() => {
+                setProfileName(user.name);
+                setProfileBio(user.bio);
+                setInputBanner(null);
+                setInputImage(user.image);
+                setShowEditor(false);
+              }}
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-screen h-screen bg-gray-700 bg-opacity-80 z-50"
+            >
+              <Animate play start={{ opacity: 0 }} end={{ opacity: 1 }}>
+                <div
+                onClick={(e) => e.stopPropagation()}
+                className="flex flex-col absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  bg-black pt-6 px-5 pb-10 rounded-xl w-[35em] h-[40em]"
+                >
+                  <div className="flex justify-between">
+                    <div className="flex gap-8 text-xl items-center">
+                      <XMarkIcon
+                        className="text-xl font-light cursor-pointer bg-white rounded-full hover:bg-gray-300"
+                        onClick={() => {
+                          setProfileName(user?.name);
+                          setProfileBio(user?.bio);
+                          setInputBanner(null);
+                          setInputImage(null);
+                          setShowEditor(false);
+                        }}
+                      />
+                      <p className="font-bold">Edit Profile</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        // handleSave();
+                      }}
+                      className="text-base font-bold border rounded-full bg-white text-black  py-1 px-4 cursor-pointer hover:bg-gray-300"
+                    >
+                      {!loading ? 'Save' : <BeatLoader color="black" size={10} />}
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-5 mt-5 relative">
+                    <div
+                      style={{backgroundImage:inputBanner? `url('${inputBanner}')`: ''}}
+                      className="bg-gray-600 h-40 bg-cover bg-center"
+                    />
+                    <img
+                      src={inputImage ? inputImage : user?.image}
+                      alt="profile-picture"
+                      className="absolute top-32 rounded-full h-24 w-24 border-black border-4 object-cover"
+                    />
+                    <label className="absolute rounded-full p-3 cursor-pointer top-[10.4em] left-[2.2em] opacity-80">
+                      <CameraIcon className=" text-white text-xl"/>
+                      <input
+                        type="file"
+                        name="myfile"
+                        className="hidden"
+                        onChange={ProfileImage}
+                      />
+                    </label>
+                    <label className="absolute rounded-full p-3 cursor-pointer top-[4.4em] left-[15em] opacity-80">
+                      <CameraIcon className= 'bg-white text-white'/>
+                      <input
+                        type="file"
+                        name="myfile"
+                        className="hidden"
+                        onChange={BannerImage}
+                      />
+                    </label>
+                    <div className="border border-gray-700 rounded p-2 mt-[4em]">
+                      <p className="text-gray-400 font-light text-sm">Name</p>
+                      <input
+                        value={profileName}
+                        onChange={(e) => setProfileName(e.target.value)}
+                        className="bg-black text-white outline-none mt-1 w-full placeholder:text-xl placeholder:text-gray-500"
+                      />
+                    </div>
+                    <div className="border border-gray-700 rounded p-2 ">
+                      <p className="text-gray-400 font-light text-sm">Bio</p>
+                      <input
+                        value={profileBio}
+                        onChange={(e) => setProfileBio(e.target.value)}
+                        className="bg-black text-white outline-none mt-1 w-full placeholder:text-xl placeholder:text-gray-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Animate>
+            </div>
+          )}
 
 
 

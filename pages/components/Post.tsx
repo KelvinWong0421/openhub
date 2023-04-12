@@ -10,6 +10,8 @@ import { useRecoilState } from 'recoil'
 import { modalState, postIdState } from 'atoms/modalAtom';
 import { HeartIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartIconFill } from '@heroicons/react/24/solid'
+import { HandThumbDownIcon } from '@heroicons/react/24/outline'
+import { HandThumbDownIcon as HandThumbDownIconFill }  from '@heroicons/react/24/solid'
 
 type Props = {
     id:string
@@ -24,6 +26,8 @@ function Post({id,post,postPage}: Props) {
     const [comments, setComments] = useState([]);
     const [likes, setLikes] =useState([]);
     const [liked, setLiked] =useState(false);
+    const [dislikes, setDislikes] =useState([]);
+    const [disliked, setDisliked] =useState(false);
     const [views, setViews] =useState(0);
     const router = useRouter();
 
@@ -34,7 +38,8 @@ function Post({id,post,postPage}: Props) {
             (snapshot)=> setComments(snapshot.docs as any)),
         [db,id]
     );
-
+    
+    //like
     useEffect(()=> 
         onSnapshot(collection(db,'posts',id,'likes'),(snapshot)=> setLikes(snapshot.docs as any)),
         [id]
@@ -45,6 +50,19 @@ function Post({id,post,postPage}: Props) {
         [likes]
     );
 
+    const likePost = async () => {
+        if(liked)
+        {
+            await deleteDoc(doc(db,'posts',id,'likes',(session?.user as any).uid))
+        } 
+        else 
+        {
+            await setDoc(doc(db,'posts',id,'likes',(session?.user as any).uid) ,{
+                username: session?.user?.name
+            });
+        }
+    }
+
      useEffect(()=> 
         onSnapshot(doc(db, 'posts', id), (doc) => {
             setViews(doc.data()?.views);
@@ -54,14 +72,27 @@ function Post({id,post,postPage}: Props) {
 
 
 
-    const likePost = async () => {
-        if(liked)
+    
+
+    //dislike
+    useEffect(()=> 
+        onSnapshot(collection(db,'posts',id,'dislikes'),(snapshot)=> setDislikes(snapshot.docs as any)),
+        [db,id]
+    );
+
+    useEffect(()=> 
+        setDisliked(dislikes.findIndex((like : any) => like.id === (session?.user as any).uid) !== -1),
+        [dislikes]
+    );
+
+    const dislikePost = async () => {
+        if(disliked)
         {
-            await deleteDoc(doc(db,'posts',id,'likes',(session?.user as any).uid))
+            await deleteDoc(doc(db,'posts',id,'dislikes',(session?.user as any).uid))
         } 
         else 
         {
-            await setDoc(doc(db,'posts',id,'likes',(session?.user as any).uid) ,{
+            await setDoc(doc(db,'posts',id,'dislikes',(session?.user as any).uid) ,{
                 username: session?.user?.name
             });
         }
@@ -175,27 +206,6 @@ function Post({id,post,postPage}: Props) {
                     )}
                 </div>
                 
-                {/*Delete Post */}
-
-                {(session?.user as any).uid === post?.id ? (
-                    <div className="flex items-center space-x-1 group"
-                    onClick={(e) => {
-                    e.stopPropagation();
-                    deleteDoc(doc(db, "posts", id));
-                    router.push("/");
-                    }}>
-                    <div className="icon group-hover:bg-red-600/10">
-                        <TrashIcon className="h-5 group-hover:text-red-600" />
-                    </div>
-                    </div>) 
-                : (
-                    <div className="flex items-center space-x-1 group">
-                        <div className="icon group-hover:bg-green-500/10">
-                            <ArrowsRightLeftIcon className="h-5 group-hover:text-green-500" />
-                        </div>
-                    </div>
-                )}
-
                 {/* Like Post */}
 
                 <div className="flex items-center space-x-1 group" 
@@ -220,6 +230,44 @@ function Post({id,post,postPage}: Props) {
                     )}
 
                 </div>
+
+                {/*Delete Post or dislike */}
+
+                {((session?.user as any).uid === post?.id||(session?.user as any).type ==='admin') ? (
+                    <div className="flex items-center space-x-1 group"
+                    onClick={(e) => {
+                    e.stopPropagation();
+                    deleteDoc(doc(db, "posts", id));
+                    router.push("/");
+                    }}>
+                        <div className="icon group-hover:bg-red-600/10">
+                            <TrashIcon className="h-5 group-hover:text-red-600" />
+                        </div>
+                    </div>) 
+                : (
+                    <div className="flex items-center space-x-1 group" 
+                    onClick={(e) => {
+                    e.stopPropagation();
+                    dislikePost();
+                    }}>
+
+                    <div className="icon group-hover:bg-pink-600/10">
+                        {disliked ? (
+                        <HandThumbDownIconFill className="h-5 text-red-600" />
+                        ) : (
+                        <HandThumbDownIcon className="h-5 group-hover:text-pink-600" />
+                        )}
+
+                    </div>
+
+                    {dislikes.length > 0 && (
+                    <span className={`group-hover:text-pink-600 text-sm ${disliked && "text-pink-600"}`}>
+                        {dislikes.length}
+                    </span>
+                    )}
+
+                </div>
+                )}
                 
                 {/* share */}
                 <div className="icon group">
