@@ -95,8 +95,7 @@ function User({providers}: Props) {
       {isfollowed ? setFollow('UnFollow'):setFollow('Follow')} 
     }
   );
-  
-  console.log(followers);
+
   
   //handle Follow
   const handleFollowClick = async () => {
