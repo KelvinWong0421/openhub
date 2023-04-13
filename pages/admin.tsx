@@ -69,7 +69,7 @@ const reloadClick = () => {
                 <div className=' flex justify-normal px-1.5 py-5 border border-gray-700 
                 text-[#d9d9d9] font-semibold text-xl gap-x-4 sticky top-0 z-50 bg-black'>
                   <div className=' flex-auto w-80'>
-                    User Infomation
+                    User Information
                   </div>
                   <div  className='flex-auto w-10 icon hover:rotate-45'>
                       <ArrowPathIcon className="h-5 text-white" onClick={reloadClick}/>
