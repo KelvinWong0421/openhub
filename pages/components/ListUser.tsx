@@ -15,12 +15,13 @@ import {
   serverTimestamp,
   updateDoc,
 } from "@firebase/firestore";
-import { DocumentData, QueryDocumentSnapshot, getDocs, where } from 'firebase/firestore';
+import { DocumentData, QueryDocumentSnapshot, deleteDoc, getDocs, where } from 'firebase/firestore';
 import { useRecoilState } from 'recoil';
 import { modalState, sidebarState } from '@/atoms/modalAtom';
 import router from 'next/router';
 
 import { TrashIcon } from '@heroicons/react/24/outline';
+import e from 'express';
 
 
 
@@ -30,6 +31,7 @@ function ListUser({}: Props ){
     const [users, setUsers] = useState<QueryDocumentSnapshot<DocumentData>[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [state, setState] = useRecoilState(sidebarState);
+    const [targetUser, setTargetUser] = useState("");
 
     useEffect(()=> onSnapshot
     (
@@ -57,12 +59,35 @@ function ListUser({}: Props ){
     setIsOpen(true);
   }
 
-  function deleteUser(){
-    const subColRef = collection(db, "collection_name", "doc_name", "subcollection_name");
 
+  function deleteUser(){
+
+    //deleteDoc(doc(db, "users", "116333069977220851680", "followers", "116378734107986546410"));
+    /*
+    //remove follower
+    const q = query(collection(db, "users"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((eachUser) => {
+        deleteDoc(doc(db, "users", eachUser.id, "followers", targetUser));
+      });
+    });
+*/
    
-    
-    closeModal;
+    const q2 = query(collection(db, "posts"));
+    const unsubscribe2 = onSnapshot(q2, (querySnapshot) => {
+      querySnapshot.forEach((eachPost) => {
+        
+        if(eachPost.get("id") == targetUser){     //remove post
+          deleteDoc(doc(db, "posts", eachPost.id));
+          //console.log(eachPost.id);
+        }else{
+          deleteDoc(doc(db, "posts", eachPost.id, "likes", targetUser));    // remove like
+        }
+      });
+    });
+
+ 
+    setIsOpen(false);
   }
 
 
@@ -91,6 +116,7 @@ function ListUser({}: Props ){
                     {user?.get('type')==='user'? 
                     <TrashIcon className="h-5  hover:rotate-45" onClick={(e) => {
                     e.stopPropagation();
+                    setTargetUser(user?.id);
                     openModal();
                     }} /> : null
                     }
