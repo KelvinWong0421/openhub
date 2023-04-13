@@ -37,6 +37,7 @@ const Modal = (props: Props) => {
         e.preventDefault();
 
         await addDoc(collection(db,'posts',postId,'comments'),{
+            id: (session?.user as any).uid,
             comment: comment,
             username: session?.user?.name,
             tag: (session?.user as any).tag,
