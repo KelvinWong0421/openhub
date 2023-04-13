@@ -9,6 +9,7 @@ import Modal from './components/Modal'
 import Sidebar from './components/Sidebar'
 import Comment from './components/Comment'
 
+//firebase api
 import { db } from "@/firebase";
 import {
   addDoc,
@@ -19,6 +20,7 @@ import {
   serverTimestamp,
   updateDoc,
 } from "@firebase/firestore";
+
 import Auth from './Auth'
 import { GetServerSidePropsContext } from 'next'
 import { BuiltInProviderType } from 'next-auth/providers'
