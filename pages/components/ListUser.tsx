@@ -15,7 +15,7 @@ import {
   serverTimestamp,
   updateDoc,
 } from "@firebase/firestore";
-import { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
+import { DocumentData, QueryDocumentSnapshot, getDocs, where } from 'firebase/firestore';
 import { useRecoilState } from 'recoil';
 import { modalState, sidebarState } from '@/atoms/modalAtom';
 import router from 'next/router';
@@ -23,11 +23,12 @@ import router from 'next/router';
 import { TrashIcon } from '@heroicons/react/24/outline';
 
 
+
 type Props = {}
 
 function ListUser({}: Props ){
     const [users, setUsers] = useState<QueryDocumentSnapshot<DocumentData>[]>([]);
-    const [isOpen, setIsOpen] = useRecoilState(modalState);
+    const [isOpen, setIsOpen] = useState(false);
     const [state, setState] = useRecoilState(sidebarState);
 
     useEffect(()=> onSnapshot
@@ -57,7 +58,11 @@ function ListUser({}: Props ){
   }
 
   function deleteUser(){
+    const subColRef = collection(db, "collection_name", "doc_name", "subcollection_name");
+
    
+    
+    closeModal;
   }
 
 
@@ -66,7 +71,7 @@ function ListUser({}: Props ){
     
 <div className='pb-72'>
         {users.map((user) => (
-          <div className=' grid grid-flow-col justify-stretch p-5 border-b border-gray-700 hover:opacity-70' onClick={() => redirectProfile(user.id)} >
+          <div key={user.id} className=' grid grid-flow-col justify-stretch p-5 border-b border-gray-700 hover:opacity-70' onClick={() => redirectProfile(user.id)} >
             <img 
                     src={user?.get('image')} 
                     alt="Profile pic" 
@@ -82,10 +87,14 @@ function ListUser({}: Props ){
                 </div>
                 <div className=' justify-self-end italic  text-[15px] text-[#d9d9d9] '>
                   <div className="icon group-hover:bg-[#1d9bf0] group-hover:bg-opacity-10">
+
+                    {user?.get('type')==='user'? 
                     <TrashIcon className="h-5  hover:rotate-45" onClick={(e) => {
                     e.stopPropagation();
                     openModal();
-                    }} />
+                    }} /> : null
+                    }
+                    
                   </div>
                 </div>
                  
@@ -102,7 +111,9 @@ function ListUser({}: Props ){
 
             <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="fixed z-50 inset-0 pt-8" onClose={setIsOpen}>
-            <div className="min-h-screen px-4 text-center">
+            <div className="min-h-screen px-4 text-center" onClick={(e) => {
+                    e.stopPropagation();
+                    }}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -148,7 +159,7 @@ function ListUser({}: Props ){
                   <button
                     type="button"
                     className="inline-flex justify-center px-4 py-2 mr-3 text-sm text-red-900 bg-red-100  rounded-md hover:bg-red-200 duration-300"
-                    onClick={closeModal}
+                    onClick={deleteUser}
                   >
                     Yes
                   </button>

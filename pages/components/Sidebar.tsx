@@ -69,11 +69,15 @@ const Sidebar = (props: Props) => {
           </button>
           
         </div>
-
-        <button className=' w-12 h-12 hidden xl:inline ml-auto bg-[#1d9bf0] text-white 
-        rounded-xl xl:w-56 xl:h-[52px] xl:font-bold shadow-md hover:bg-[#1a8cd8] '>
-          Tweet
+        {(session?.user as any).type==='admin'?
+        <button className=' w-12 h-12 hidden xl:inline ml-auto bg-[#ea2626] text-white 
+        rounded-xl xl:w-56 xl:h-[52px] xl:font-bold shadow-md hover:bg-[#ef8888] ' onClick={()=>router.push(`/admin`)}>
+          Control Panel
         </button>
+        :
+        null
+        }
+
 
         <div className='text-[#d9d9d9] flex items-center justify-center 
         hoverAnimation xl:ml-auto xl:-mr-5 mt-auto'onClick={ProfileClick}>
