@@ -15,13 +15,14 @@ import {
   serverTimestamp,
   updateDoc,
 } from "@firebase/firestore";
-import { DocumentData, QueryDocumentSnapshot, deleteDoc, getDocs, where } from 'firebase/firestore';
+import { DocumentData, QueryDocumentSnapshot, collectionGroup, deleteDoc, documentId, getDocs, where } from 'firebase/firestore';
 import { useRecoilState } from 'recoil';
 import { modalState, sidebarState } from '@/atoms/modalAtom';
 import router from 'next/router';
 
 import { TrashIcon } from '@heroicons/react/24/outline';
 import e from 'express';
+import { getFirestore } from 'firebase-admin/firestore';
 
 
 
@@ -32,6 +33,7 @@ function ListUser({}: Props ){
     const [isOpen, setIsOpen] = useState(false);
     const [state, setState] = useRecoilState(sidebarState);
     const [targetUser, setTargetUser] = useState("");
+    const [postid,setPostid] = useState<string[]>([]);
 
     useEffect(()=> onSnapshot
     (
@@ -62,33 +64,39 @@ function ListUser({}: Props ){
 
   function deleteUser(){
 
-    //deleteDoc(doc(db, "users", "116333069977220851680", "followers", "116378734107986546410"));
-    /*
     //remove follower
-    const q = query(collection(db, "users"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      querySnapshot.forEach((eachUser) => {
-        deleteDoc(doc(db, "users", eachUser.id, "followers", targetUser));
+      const q = query(collection(db, "users"));
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        querySnapshot.forEach((eachUser) => {
+          deleteDoc(doc(db, "users", eachUser.id, "followers", targetUser));
+        });
       });
-    });
-*/
-   
-    const q2 = query(collection(db, "posts"));
-    const unsubscribe2 = onSnapshot(q2, (querySnapshot) => {
-      querySnapshot.forEach((eachPost) => {
+  
+      const idRecord: string[] = [];
+      const q2 = query(collection(db, "posts"));
+      const unsubscribe2 = onSnapshot(q2, (querySnapshot) => {
+  
+        querySnapshot.forEach((eachPost) => {
+          if(eachPost.get("id") == targetUser){     //remove post
+            deleteDoc(doc(db, "posts", eachPost.id));
+          }else{  
+            idRecord[idRecord.length] = eachPost.id;
+            deleteDoc(doc(db, "posts", eachPost.id, "likes", targetUser));    // remove like
+          }
+        });
         
-        if(eachPost.get("id") == targetUser){     //remove post
-          deleteDoc(doc(db, "posts", eachPost.id));
-          //console.log(eachPost.id);
-        }else{
-          deleteDoc(doc(db, "posts", eachPost.id, "likes", targetUser));    // remove like
-        }
       });
-    });
-
+      //console.log(Object.keys(idRecord)); 
+      
+     // console.log(Object.values(idRecord));
+      //console.log(idRecord.map(({ key, value }) => ({ [key]: value })));
+      //console.log(Array.prototype.map.call(idRecord, (xaa)));
+      
+     
+      deleteDoc(doc(db, "users", targetUser));
+      setIsOpen(false);
+    }
  
-    setIsOpen(false);
-  }
 
 
 
@@ -216,3 +224,5 @@ function ListUser({}: Props ){
 }
 
 export default ListUser
+
+
