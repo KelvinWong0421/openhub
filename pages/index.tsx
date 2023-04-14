@@ -9,6 +9,7 @@ import Auth from './Auth'
 import { BuiltInProviderType } from 'next-auth/providers'
 import { modalState } from '@/atoms/modalAtom'
 import { useRecoilState } from 'recoil'
+import Search from './components/Search'
 
 
 type Props = {
@@ -42,6 +43,9 @@ export default function Home({providers}: Props) {
 
         {/*Modal*/}
         {isOpen&&<Modal/>}
+
+        {/* Search */}
+        <Search/>
 
       </main>
       
