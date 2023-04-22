@@ -33,7 +33,7 @@ function ListUser({}: Props ){
     const [isOpen, setIsOpen] = useState(false);
     const [state, setState] = useRecoilState(sidebarState);
     const [targetUser, setTargetUser] = useState("");
-    const [postid,setPostid] = useState<string[]>([]);
+    //const [postids, setPostId] = useState([] as any);
 
     useEffect(()=> onSnapshot
     (
@@ -59,48 +59,67 @@ function ListUser({}: Props ){
 
   function openModal() {
     setIsOpen(true);
+   
+    
   }
-
-
-  function deleteUser(){
-
-    //remove follower
-      const q = query(collection(db, "users"));
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        querySnapshot.forEach((eachUser) => {
-          deleteDoc(doc(db, "users", eachUser.id, "followers", targetUser));
-        });
-      });
   
-      const idRecord: string[] = [];
-      const q2 = query(collection(db, "posts"));
-      const unsubscribe2 = onSnapshot(q2, (querySnapshot) => {
-  
-        querySnapshot.forEach((eachPost) => {
-          if(eachPost.get("id") == targetUser){     //remove post
-            deleteDoc(doc(db, "posts", eachPost.id));
-          }else{  
-            idRecord[idRecord.length] = eachPost.id;
-            deleteDoc(doc(db, "posts", eachPost.id, "likes", targetUser));    // remove like
-          }
-        });
-        
+
+
+  async function deleteUser(){
+
+
+
+    const q = query(collection(db, "users"));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((eachUser) => {             
+      // remove followers
+       deleteDoc(doc(db, "users", eachUser.id, "followers", targetUser));
+    });
+
+    const idRecord: string[] = [];
+    const q2 = query(collection(db, "posts"));
+    const querySnapshot2 = await getDocs(q2);
+    querySnapshot2.forEach((eachPost) =>{
+        if(eachPost.get("id") == targetUser){
+          //remove post
+          deleteDoc(doc(db, "posts", eachPost.id));
+
+        }else{
+          // remove like
+          deleteDoc(doc(db, "posts", eachPost.id, "likes", targetUser));    
+          idRecord.push(eachPost.id);
+            
+        }
+    });
+
+    for(var value of idRecord){
+      //console.log(value);
+      
+      const q3 = query(collection(db, "posts", value, "comments"));
+      const querySnapshot3 = await getDocs(q3);
+      querySnapshot3.forEach((eachComment) =>{
+       // console.log(eachComment.id);
+        //remove comment
+        if(eachComment.get("id") == targetUser){
+          deleteDoc(doc(db, "posts", value, "comments", eachComment.id))
+        }
       });
-      //console.log(Object.keys(idRecord)); 
-      
-     // console.log(Object.values(idRecord));
-      //console.log(idRecord.map(({ key, value }) => ({ [key]: value })));
-      //console.log(Array.prototype.map.call(idRecord, (xaa)));
-      
-     
-      deleteDoc(doc(db, "users", targetUser));
-      setIsOpen(false);
     }
+
+    deleteDoc(doc(db, "users", targetUser));
+
+    //console.log(idRecord.length);
+
+
+    setIsOpen(false);
+    
+  }
  
 
 
 
   return (
+    
     
 <div className='pb-72'>
         {users.map((user) => (
@@ -189,6 +208,9 @@ function ListUser({}: Props ){
                   </p>
                 </div>
                 <div className='flex justify-end'>
+                <div className="mt-4"  id='delete_loader'>
+
+                </div>
                 <div className="mt-4">
                   <button
                     type="button"
@@ -196,6 +218,7 @@ function ListUser({}: Props ){
                     onClick={deleteUser}
                   >
                     Yes
+                    
                   </button>
                 </div>
                 <div className="mt-4">
