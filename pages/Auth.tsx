@@ -25,6 +25,14 @@ const Auth = ({providers}: Props) => {
         router.push('/signup')
     }
 
+    const forgot_password = () =>{
+        window.open("https://support.google.com/accounts/answer/41078?hl=en&co=GENIE.Platform%3DDesktop",'_blank');
+    }
+
+    const open_google_ac = () =>{
+        window.open("https://support.google.com/accounts/answer/27441?hl=en", "_blank");
+    }
+
 
   return (
     <div className='bg-gray-800 text-white h-screen w-screen flex justify-center items-center'>
@@ -78,13 +86,13 @@ const Auth = ({providers}: Props) => {
             placeholder="Phone, email or username"
             />
               
-            <button className="mt-2 w-full text-white  hover:bg-gray-800 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 border border-white font-medium rounded-3xl text-sm px-5 py-1.5 text-center cursor-not-allowed">
+            <button onClick={forgot_password} className="mt-2 w-full text-white  hover:bg-gray-800 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 border border-white font-medium rounded-3xl text-sm px-5 py-1.5 text-center ">
                 Forgot pasword?
             </button>
 
             <div className="flex gap-2 mt-10">
                 <p>Don&apos;t have an account?</p>
-                <p className="text-blue-500 cursor-not-allowed">Sign up</p>
+                <p onClick={open_google_ac} className="text-blue-500 hover:text-white">Sign up</p>
             </div>
         
         </div>
