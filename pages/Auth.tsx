@@ -91,7 +91,7 @@ const Auth = ({providers}: Props) => {
             </button>
 
             <div className="flex gap-2 mt-10">
-                <p>Don&apos;t have an account?</p>
+                <p>Don&apos;t have an google account?</p>
                 <p onClick={open_google_ac} className="text-blue-500 hover:text-white">Sign up</p>
             </div>
         
