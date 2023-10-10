@@ -41,23 +41,25 @@ function PostPage({providers}: Props) {
 
     if(!session) return <Auth providers={providers}/>
 
-    useEffect(()=>
-        onSnapshot(doc(db,'posts',id as any),(snapshot)=>{
+    useEffect(() => {
+        if (!id) return; // Ensure id is available
+        onSnapshot(doc(db, 'posts', id as any), (snapshot) => {
             setPost(snapshot.data())
-        }),
-        [db]
-    )
-    useEffect(()=>
+        });
+    }, [id]); 
+    
+    useEffect(() => {
+        if (!id) return; // Ensure id is available
         onSnapshot(
             query(
-                collection(db,'posts',id as any,'comments'),
-                orderBy('timestamp','desc')
-            )
-            ,(snapshot)=>{
-            setComments(snapshot.docs as any)
-        }),
-        [db,id]
-    )
+                collection(db, 'posts', id as any, 'comments'),
+                orderBy('timestamp', 'desc')
+            ),
+            (snapshot) => {
+                setComments(snapshot.docs as any)
+            }
+        );
+    }, [id]); 
 
 
 

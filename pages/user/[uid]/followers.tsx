@@ -19,7 +19,7 @@ type Props = {
     providers:Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>
 }
 
-const followers = ({providers}: Props) => {
+const Followers = ({providers}: Props) => {
     const {data: session} = useSession();
     const router = useRouter();
     const uid = router.query.uid;
@@ -38,7 +38,7 @@ const followers = ({providers}: Props) => {
             setUsersid(snapshot.docs);
             }
         ),
-        [db]
+        [db, uid]
     );
 
 
@@ -107,7 +107,7 @@ const followers = ({providers}: Props) => {
   )
 }
 
-export default followers
+export default Followers
 
 export async function getServerSideProps(context:GetServerSidePropsContext) {
 

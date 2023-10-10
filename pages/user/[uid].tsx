@@ -4,7 +4,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar'
-
+import Image from 'next/image';
 import { db, storage } from "@/firebase";
 import { getDownloadURL, ref, uploadString } from "@firebase/storage";
 
@@ -68,33 +68,38 @@ function User({providers}: Props) {
 
   if(!session) return <Auth providers={providers}/>
 
-  //fetch user data
-  useEffect(()=>
-    onSnapshot(doc(db,'users',uid as string),(snapshot)=>{
-      setUser(snapshot.data())
-    }),
-    [uid]
-  )
-
-  //fetch user following
-  useEffect(()=> 
-    onSnapshot(collection(db,'users',uid as string,'following'),(snapshot)=> setFollowing(snapshot.docs as any)),
-    [db,uid]
-  );
-  
-  //fetch user followers
-  useEffect(()=> 
-    onSnapshot(collection(db,'users',uid as string,'followers'),(snapshot)=> setFollowers(snapshot.docs as any)),
-    [db,uid]
-  );
-  
-  //update the state of following
-  useEffect(()=> {
-    setIsfollowed(followers.findIndex((followers : any) => followers.id === (session.user as any).uid) !== -1),
-    [uid,following]
-      {isfollowed ? setFollow('UnFollow'):setFollow('Follow')} 
+  useEffect(() => {
+    if (uid) {
+        onSnapshot(doc(db, 'users', uid as string), (snapshot) => {
+            setUser(snapshot.data())
+        });
     }
-  );
+  }, [uid]);
+
+  //fetch user followingIa
+  useEffect(() => {
+      if (uid) {
+          onSnapshot(collection(db, 'users', uid as string, 'following'), (snapshot) => setFollowing(snapshot.docs as any));
+      }
+  }, [db, uid]);
+
+  //fetch user followers
+  useEffect(() => {
+      if (uid) {
+          onSnapshot(collection(db, 'users', uid as string, 'followers'), (snapshot) => setFollowers(snapshot.docs as any));
+      }
+  }, [db, uid]);
+
+  //update the state of following
+  useEffect(() => {
+      setIsfollowed(followers.findIndex((followers: any) => followers.id === (session.user as any).uid) !== -1);
+      if (isfollowed) {
+          setFollow('UnFollow');
+      } else {
+          setFollow('Follow');
+      }
+  }, [followers, session.user, isfollowed]);
+
 
   
   //handle Follow
