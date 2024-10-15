@@ -3,9 +3,6 @@ import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAHMuEGmIDKJb-Lpz_-KF-CJN26SaVpyJM",
@@ -16,10 +13,12 @@ const firebaseConfig = {
   appId: "1:504358266504:web:bf304ff1284b6c8ef8e13d"
 };
 
-// Initialize Firebase
+// Initialize Firebase app (singleton pattern)
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore();
-const storage = getStorage();
+
+// Get Firestore and Storage instances using the app
+const db = getFirestore(app);
+const storage = getStorage(app);
 
 export default app;
 export { db, storage };

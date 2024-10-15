@@ -68,13 +68,55 @@ function Input({}: Props) {
 
     const addImageToPost = (e: React.ChangeEvent<HTMLInputElement>) => {
         const reader = new FileReader();
-        if(e.target.files&&e.target.files[0]){
-            reader.readAsDataURL(e.target.files[0]);
+        if (e.target.files && e.target.files[0]) {
+          reader.readAsDataURL(e.target.files[0]);
+      
+          reader.onload = (readerEvent) => {
+            const originalImage = new Image();
+            originalImage.src = readerEvent.target?.result as string;
+      
+            originalImage.onload = () => {
+              // Resize the image
+              const canvas = document.createElement('canvas');
+              const MAX_WIDTH = 800; // Adjust as needed
+              const MAX_HEIGHT = 800;
+      
+              let width = originalImage.width;
+              let height = originalImage.height;
+      
+              // Calculate the new width and height while maintaining the aspect ratio
+              if (width > height) {
+                if (width > MAX_WIDTH) {
+                  height = (MAX_WIDTH / width) * height;
+                  width = MAX_WIDTH;
+                }
+              } else {
+                if (height > MAX_HEIGHT) {
+                  width = (MAX_HEIGHT / height) * width;
+                  height = MAX_HEIGHT;
+                }
+              }
+      
+              // Set the canvas dimensions
+              canvas.width = width;
+              canvas.height = height;
+      
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                // Draw the resized image on the canvas
+                ctx.drawImage(originalImage, 0, 0, width, height);
+      
+                // Convert the canvas to a data URL
+                const resizedImageDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 0.7 = 70% quality
+      
+                // Save the resized image to state
+                setSelectedFile(resizedImageDataUrl);
+              }
+            };
+          };
         }
-        reader.onload = (readerEvent) =>{
-            setSelectedFile(readerEvent.target?.result as string);
-        } 
-    };
+      };
+      
         
 
 
