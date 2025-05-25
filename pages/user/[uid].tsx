@@ -66,8 +66,6 @@ function User({providers}: Props) {
   }
   const [user,setUser] = useState<user|any>(null);
 
-  if(!session) return <Auth providers={providers}/>
-
   useEffect(() => {
     if (uid) {
         onSnapshot(doc(db, 'users', uid as string), (snapshot) => {
@@ -81,24 +79,28 @@ function User({providers}: Props) {
       if (uid) {
           onSnapshot(collection(db, 'users', uid as string, 'following'), (snapshot) => setFollowing(snapshot.docs as any));
       }
-  }, [db, uid]);
+  }, [uid]);
 
   //fetch user followers
   useEffect(() => {
       if (uid) {
           onSnapshot(collection(db, 'users', uid as string, 'followers'), (snapshot) => setFollowers(snapshot.docs as any));
       }
-  }, [db, uid]);
+  }, [uid]);
 
   //update the state of following
   useEffect(() => {
-      setIsfollowed(followers.findIndex((followers: any) => followers.id === (session.user as any).uid) !== -1);
-      if (isfollowed) {
-          setFollow('UnFollow');
-      } else {
-          setFollow('Follow');
+      if (session?.user) {
+          setIsfollowed(followers.findIndex((followers: any) => followers.id === (session.user as any).uid) !== -1);
+          if (isfollowed) {
+              setFollow('UnFollow');
+          } else {
+              setFollow('Follow');
+          }
       }
-  }, [followers, session.user, isfollowed]);
+  }, [followers, session?.user, isfollowed]);
+
+  if(!session) return <Auth providers={providers}/>
 
 
   
@@ -232,9 +234,11 @@ function User({providers}: Props) {
           <div className="relative ml-5 ">
             <Popover>
               <Popover.Button>
-              <img
-                src={user?.image}
+              <Image
+                src={user?.image || '/default-avatar.png'}
                 alt="profile-picture"
+                width={144}
+                height={144}
                 className="absolute rounded-full h-36 w-36 object-cover border-black border-4 top-[-3em] ml-0.5"
               />
               </Popover.Button>
@@ -243,8 +247,10 @@ function User({providers}: Props) {
 
               <Popover.Panel>
                 <Animate play start={{ opacity: 0 }} end={{ opacity: 1 }}>
-                <img alt="profile-picture"
-                src={(user as any)?.image}
+                <Image alt="profile-picture"
+                src={(user as any)?.image || '/default-avatar.png'}
+                width={800}
+                height={800}
                 className="fixed top-1/2 h-max-80 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl mb-2 mr-1 max-w-[45em] z-50"
                 />
                 </Animate>
@@ -377,9 +383,11 @@ function User({providers}: Props) {
                       style={{backgroundImage:inputBanner? `url('${inputBanner}')`: `url('${user.banner}')`}}
                       className="bg-gray-600 h-40 bg-cover bg-center"
                     />
-                    <img
-                      src={inputImage ? inputImage : user?.image}
+                    <Image
+                      src={inputImage ? inputImage : user?.image || '/default-avatar.png'}
                       alt="profile-picture"
+                      width={96}
+                      height={96}
                       className="absolute top-32 rounded-full h-24 w-24 border-black border-4 object-cover"
                     />
                     <label className="absolute rounded-full p-3 cursor-pointer top-[10.4em] left-[2.2em] opacity-80">

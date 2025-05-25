@@ -18,7 +18,7 @@ type Props = {
     providers:Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>
 }
 
-const admin = ({providers}: Props) => {
+const Admin = ({providers}: Props) => {
     const {data: session} = useSession();
     if(!session) return <Auth providers={providers}/>
 
@@ -97,7 +97,7 @@ const reloadClick = () => {
   )
 }
 
-export default admin
+export default Admin
 
 export async function getServerSideProps(context:GetServerSidePropsContext) {
 

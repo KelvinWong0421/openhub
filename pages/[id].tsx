@@ -39,8 +39,6 @@ function PostPage({providers}: Props) {
     const router = useRouter();
     const {id} = router.query;
 
-    if(!session) return <Auth providers={providers}/>
-
     useEffect(() => {
         if (!id) return; // Ensure id is available
         onSnapshot(doc(db, 'posts', id as any), (snapshot) => {
@@ -59,14 +57,16 @@ function PostPage({providers}: Props) {
                 setComments(snapshot.docs as any)
             }
         );
-    }, [id]); 
+    }, [id]);
+
+    if(!session) return <Auth providers={providers}/> 
 
 
 
   return (
     <div>
         <Head>
-            <title>{post?.username} on Twitter:'{post?.text}'</title>
+            <title>{post?.username} on Twitter: &apos;{post?.text}&apos;</title>
             <link rel="icon" href="/favicon.ico "  />
         </Head>
       

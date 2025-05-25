@@ -19,42 +19,40 @@ type Props = {
     providers:Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>
 }
 
-const following = ({providers}: Props) => {
+const Following = ({providers}: Props) => {
     const {data: session} = useSession();
     const router = useRouter();
     const uid = router.query.uid;
     const [users, setUsers] = useState<QueryDocumentSnapshot<DocumentData>[]>([]);
     const [usersid, setUsersid] = useState<QueryDocumentSnapshot<DocumentData>[]>([]);
     
-    
-    if(!session) return <Auth providers={providers}/>
-
-
     //fetch following id
-    useEffect(()=> onSnapshot
-        (
-            query(collection(db, 'users',uid as string,'following')),
-            (snapshot) => {
-            setUsersid(snapshot.docs);
-            }
-        ),
-        [db]
-    );
+    useEffect(()=> {
+        if (uid) {
+            return onSnapshot(
+                query(collection(db, 'users',uid as string,'following')),
+                (snapshot) => {
+                    setUsersid(snapshot.docs);
+                }
+            );
+        }
+    }, [uid]);
 
 
     //fetch following user data
     useEffect(() => {
         if (usersid.length > 0) {
             const followingIds = usersid.map(doc => doc.id);
-            onSnapshot(
-            query(collection(db, 'users'), where('uid', "in", followingIds)),
-            (snapshot) => {
-                setUsers(snapshot.docs);
-            }
+            return onSnapshot(
+                query(collection(db, 'users'), where('uid', "in", followingIds)),
+                (snapshot) => {
+                    setUsers(snapshot.docs);
+                }
             );
         }
-        }, [usersid]
-    );
+    }, [usersid]);
+    
+    if(!session) return <Auth providers={providers}/>
     
 
 
@@ -106,7 +104,7 @@ const following = ({providers}: Props) => {
   )
 }
 
-export default following
+export default Following
 
 export async function getServerSideProps(context:GetServerSidePropsContext) {
 

@@ -26,35 +26,33 @@ const Followers = ({providers}: Props) => {
     const [users, setUsers] = useState<QueryDocumentSnapshot<DocumentData>[]>([]);
     const [usersid, setUsersid] = useState<QueryDocumentSnapshot<DocumentData>[]>([]);
     
-    
-    if(!session) return <Auth providers={providers}/>
-
-
     //fetch followers id
-    useEffect(()=> onSnapshot
-        (
-            query(collection(db, 'users',uid as string,'followers')),
-            (snapshot) => {
-            setUsersid(snapshot.docs);
-            }
-        ),
-        [db, uid]
-    );
+    useEffect(()=> {
+        if (uid) {
+            return onSnapshot(
+                query(collection(db, 'users',uid as string,'followers')),
+                (snapshot) => {
+                    setUsersid(snapshot.docs);
+                }
+            );
+        }
+    }, [uid]);
 
 
     //fetch followers user data
     useEffect(() => {
         if (usersid.length > 0) {
             const followersIds = usersid.map(doc => doc.id);
-            onSnapshot(
-            query(collection(db, 'users'), where('uid', "in", followersIds)),
-            (snapshot) => {
-                setUsers(snapshot.docs);
-            }
+            return onSnapshot(
+                query(collection(db, 'users'), where('uid', "in", followersIds)),
+                (snapshot) => {
+                    setUsers(snapshot.docs);
+                }
             );
         }
-        }, [usersid]
-    );
+    }, [usersid]);
+    
+    if(!session) return <Auth providers={providers}/>
     
 
 
