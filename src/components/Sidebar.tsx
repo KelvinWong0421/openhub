@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import logo from '../pic/logo.svg'
+import logo from '../../pages/pic/logo.svg'
 import SidebarLink from './SidebarLink'
 
 import { HomeIcon } from '@heroicons/react/24/solid'

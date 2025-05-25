@@ -1,15 +1,15 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import Sidebar from './components/Sidebar'
-import Feed from './components/Feed'
-import Modal from './components/Modal'
+import Sidebar from '@/src/components/Sidebar'
+import Feed from '@/src/components/Feed'
+import Modal from '@/src/components/Modal'
 import { GetServerSidePropsContext } from 'next/types'
 import {   ClientSafeProvider, getProviders,getSession,LiteralUnion,useSession } from 'next-auth/react'
 import Auth from './Auth'
 import { BuiltInProviderType } from 'next-auth/providers'
 import { modalState } from '@/atoms/modalAtom'
 import { useRecoilState } from 'recoil'
-import Search from './components/Search'
+import Search from '@/src/components/Search'
 
 
 type Props = {

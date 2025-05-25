@@ -5,12 +5,12 @@ import { GetServerSidePropsContext } from 'next';
 import { BuiltInProviderType } from 'next-auth/providers';
 import router from 'next/router';
 import Head from 'next/head'
-import Sidebar from './components/Sidebar'
+import Sidebar from '@/src/components/Sidebar'
 
 //icon
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import ListUser from './components/ListUser';
+import ListUser from '@/src/components/ListUser';
 
 
 

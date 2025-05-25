@@ -3,7 +3,7 @@ import { ClientSafeProvider, getProviders, getSession, LiteralUnion, useSession 
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
-import Sidebar from '../components/Sidebar'
+import Sidebar from '@/src/components/Sidebar'
 import Image from 'next/image';
 import { db, storage } from "@/firebase";
 import { getDownloadURL, ref, uploadString } from "@firebase/storage";

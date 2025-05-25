@@ -5,9 +5,9 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
-import Modal from './components/Modal'
-import Sidebar from './components/Sidebar'
-import Comment from './components/Comment'
+import Modal from '@/src/components/Modal'
+import Sidebar from '@/src/components/Sidebar'
+import Comment from '@/src/components/Comment'
 
 //firebase api
 import { db } from "@/firebase";
@@ -25,7 +25,7 @@ import Auth from './Auth'
 import { GetServerSidePropsContext } from 'next'
 import { BuiltInProviderType } from 'next-auth/providers'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
-import Post from './components/Post'
+import Post from '@/src/components/Post'
 
 type Props = {
     providers:Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>

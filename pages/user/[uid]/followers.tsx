@@ -5,10 +5,10 @@ import { GetServerSidePropsContext } from 'next';
 import { BuiltInProviderType } from 'next-auth/providers';
 import { useRouter } from 'next/router';
 import Head from 'next/head'
-import Sidebar from '@/pages/components/Sidebar'
+import Sidebar from '@/src/components/Sidebar'
 
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import User from '@/pages/components/User';
+import User from '@/src/components/User';
 import { DocumentData, QueryDocumentSnapshot, collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/firebase';
 
